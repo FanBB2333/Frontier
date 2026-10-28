@@ -95,6 +95,17 @@
   }
 }
 
+/* Thin scrollbar on a clear track; the thumb shows only while the area is hovered or focused. */
+@utility scrollbar-subtle {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  &:hover,
+  &:focus-within {
+    scrollbar-color: color-mix(in oklab, var(--muted-foreground) 40%, transparent)
+      transparent;
+  }
+}
+
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;

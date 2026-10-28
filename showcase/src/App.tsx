@@ -20,10 +20,11 @@ import {
   XIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { REPO_URL } from "@/lib/app"
+import { APP_ID, REPO_URL } from "@/lib/app"
 import { otherLang, setLang, useLang, useT, type Text } from "@/lib/i18n"
 import { originOf, useTheme } from "@/hooks/use-theme"
 import { TEMPLATES, type TemplateEntry } from "@/templates"
+import { ResizeHandle } from "@/components/resize-handle"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -54,6 +55,10 @@ const UI = {
   source: { en: "Source on GitHub", zh: "在 GitHub 查看源码" },
   reload: { en: "Reload", zh: "重新加载" },
   drawer: { en: "Toggle sidebar", zh: "展开 / 收起侧栏" },
+  resize: {
+    en: "Drag to resize the sidebar, double-click to reset",
+    zh: "拖动调整侧栏宽度，双击恢复默认",
+  },
   theme: { en: "Switch theme", zh: "切换主题" },
   lang: { en: "切换到中文", zh: "Switch to English" },
   close: { en: "Close", zh: "关闭" },
@@ -119,6 +124,31 @@ const useIsDesktop = () => {
   return desktop
 }
 
+const DRAWER = { default: 288, min: 240, max: 480 }
+const DRAWER_KEY = `${APP_ID}:drawer-width`
+
+function readDrawerWidth() {
+  try {
+    const saved = Number(window.localStorage.getItem(DRAWER_KEY))
+    if (saved >= DRAWER.min && saved <= DRAWER.max) return saved
+  } catch {
+    // Storage can be unavailable; use the default width.
+  }
+  return DRAWER.default
+}
+
+function useDrawerWidth() {
+  const [width, setWidth] = useState(readDrawerWidth)
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(DRAWER_KEY, String(width))
+    } catch {
+      // Not persisted; the width still applies for this session.
+    }
+  }, [width])
+  return [width, setWidth] as const
+}
+
 function IconButton({
   label,
   onClick,
@@ -163,16 +193,21 @@ function Drawer({
   selected,
   onSelect,
   onClose,
+  width,
 }: {
   selected: TemplateEntry
   onSelect: (t: TemplateEntry) => void
   onClose?: () => void
+  width?: number
 }) {
   const t = useT()
   const lang = useLang()
   const { resolved, setTheme } = useTheme()
   return (
-    <div className="flex h-full w-72 flex-col bg-card">
+    <div
+      className="flex h-full w-72 flex-col bg-card"
+      style={width ? { width } : undefined}
+    >
       <div className="flex h-12 shrink-0 items-center gap-2.5 border-b px-4">
         <img src="favicon.svg" alt="" className="size-5" />
         <span className="font-serif text-[17px] font-semibold tracking-tight">
@@ -193,7 +228,7 @@ function Drawer({
       </div>
       <nav
         aria-label={t(UI.templates)}
-        className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-2"
+        className="flex min-h-0 flex-1 scrollbar-subtle flex-col gap-1 overflow-y-auto p-2"
       >
         <span className="px-2 pt-2 pb-1 text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
           {t(UI.templates)}
@@ -337,6 +372,8 @@ export default function App() {
   const desktop = useIsDesktop()
   const [selected, select] = useSelected()
   const [drawerOpen, setDrawerOpen] = useState(true)
+  const [drawerWidth, setDrawerWidth] = useDrawerWidth()
+  const [resizing, setResizing] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [viewport, setViewport] = useState<Viewport>("full")
   const [reloadKey, setReloadKey] = useState(0)
@@ -355,15 +392,30 @@ export default function App() {
     <TooltipProvider delay={300}>
       <div className="flex h-svh overflow-hidden">
         {desktop ? (
-          <aside
-            className={cn(
-              "shrink-0 overflow-hidden border-r transition-[width] duration-300 ease-out",
-              drawerOpen ? "w-72" : "w-0 border-r-0"
+          <>
+            <aside
+              className={cn(
+                "shrink-0 overflow-hidden border-r",
+                !resizing && "transition-[width] duration-300 ease-out",
+                !drawerOpen && "border-r-0"
+              )}
+              style={{ width: drawerOpen ? drawerWidth : 0 }}
+              aria-hidden={!drawerOpen}
+            >
+              <Drawer selected={selected} onSelect={pick} width={drawerWidth} />
+            </aside>
+            {drawerOpen && (
+              <ResizeHandle
+                label={t(UI.resize)}
+                width={drawerWidth}
+                min={DRAWER.min}
+                max={DRAWER.max}
+                onResize={setDrawerWidth}
+                onReset={() => setDrawerWidth(DRAWER.default)}
+                onDragChange={setResizing}
+              />
             )}
-            aria-hidden={!drawerOpen}
-          >
-            <Drawer selected={selected} onSelect={pick} />
-          </aside>
+          </>
         ) : (
           <>
             <div
