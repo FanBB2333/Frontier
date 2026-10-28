@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Frontier 标注平台</title>
+    <script>
+      // Apply the saved theme before first paint (mirrors src/lib/theme.ts).
+      ;(function () {
+        var modes = { light: "light", dark: "dark" }
+        var id = "light"
+        try {
+          var saved = localStorage.getItem("frontier-annotation:theme")
+          if (saved === "system") id = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+          else if (modes[saved]) id = saved
+        } catch (e) {}
+        var d = document.documentElement
+        d.dataset.theme = id
+        d.style.colorScheme = modes[id]
+        if (modes[id] === "dark") d.classList.add("dark")
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
