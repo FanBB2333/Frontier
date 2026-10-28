@@ -1,0 +1,15 @@
+{
+  "name": "frontier",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.9.1",
+  "scripts": {
+    "install:all": "for d in annotation slides landing report showcase; do pnpm -C $d install; done",
+    "build:pages": "bash scripts/build-pages.sh",
+    "preview:pages": "node scripts/serve.mjs _site",
+    "screenshots": "node scripts/screenshots.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.64.1"
+  }
+}

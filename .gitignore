@@ -1,0 +1,8 @@
+node_modules
+dist
+dist-ssr
+_site
+*.local
+.DS_Store
+# report snapshots written by `pnpm build` in report/
+report/out
