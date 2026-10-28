@@ -8,11 +8,14 @@
     <script>
       // Apply the saved theme and language before first paint (mirrors src/lib/theme.ts, i18n.ts).
       ;(function () {
+        // In the gallery the host page's mode stands in for the OS one (see src/lib/system-scheme.ts).
+        var host = parent !== window && new URLSearchParams(location.search).get("scheme")
+        var systemDark = host === "dark" || (host !== "light" && matchMedia("(prefers-color-scheme: dark)").matches)
         var modes = { morandi: "light", celadon: "light", dusk: "dark", midnight: "dark" }
         var id = "morandi"
         try {
           var saved = localStorage.getItem("frontier-slides:theme")
-          if (saved === "system") id = matchMedia("(prefers-color-scheme: dark)").matches ? "dusk" : "morandi"
+          if (saved === "system") id = systemDark ? "dusk" : "morandi"
           else if (modes[saved]) id = saved
           if (localStorage.getItem("frontier-slides:lang") === "zh") document.documentElement.lang = "zh-CN"
         } catch (e) {}

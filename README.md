@@ -100,7 +100,7 @@ Every template starts from the same files. Shared modules are copies, not a pack
 | Toolchain | Vite 8, React 19, TypeScript 6 (strict), Tailwind CSS v4, ESLint flat config, Prettier with class sorting, pnpm | `package.json`, `tsconfig*.json`, `eslint.config.js`, `.prettierrc` |
 | Components | shadcn/ui, `base-nova` style on Base UI primitives; lucide icons; `cn()` | `components.json`, `src/components/ui/`, `src/lib/utils.ts` |
 | App identity | `APP_ID` prefixes every localStorage key, so apps on one origin keep separate settings | `src/lib/app.ts` |
-| Color themes | Palettes as CSS variables under `:root[data-theme]`, a `.dark` class for Tailwind, "system" support, a store with `useTheme()`, an optional circular reveal | `src/index.css`, `src/lib/theme.ts`, `src/hooks/use-theme.ts` |
+| Color themes | Palettes as CSS variables under `:root[data-theme]`, a `.dark` class for Tailwind, "system" support (the OS mode, or the gallery's when embedded), a store with `useTheme()`, an optional circular reveal | `src/index.css`, `src/lib/theme.ts`, `src/lib/system-scheme.ts`, `src/hooks/use-theme.ts` |
 | No flash | An inline script applies the saved theme (and language) before first paint | `index.html` |
 | Languages | Every string is a `{ en, zh }` pair read with `useT()`; SSR-safe store | `src/lib/i18n.ts` (slides, landing, showcase) |
 | One-file export | Inlines scripts, styles, fonts and images into one HTML file | `scripts/export-single-html.mjs` (slides, landing) |
@@ -110,7 +110,7 @@ To start something new from a template, copy its folder (`npx degit FanBB2333/Fr
 
 ## Gallery on GitHub Pages
 
-`showcase/` is a small app with a left drawer listing the templates and the selected one running in a frame. The frame can be filled or set to laptop, tablet and phone widths. On phones the drawer slides over the page. Everything it shows is sample data: the annotation console is signed in to its mock API (`?as=admin`), the deck and the landing page show their own demo content, and nothing talks to a real service.
+`showcase/` is a small app with a left drawer listing the templates and the selected one running in a frame. The frame can be filled or set to laptop, tablet and phone widths. On phones the drawer slides over the page. The gallery's light/dark switch plays the part of the OS setting for the framed template: a template set to follow the system follows the gallery, and one set to light or dark keeps its choice. Everything it shows is sample data: the annotation console is signed in to its mock API (`?as=admin`), the deck and the landing page show their own demo content, and nothing talks to a real service.
 
 [`.github/workflows/pages.yml`](.github/workflows/pages.yml) deploys on every push to `main` (and on manual runs). It runs [`scripts/build-pages.sh`](scripts/build-pages.sh), which builds the gallery into `_site/` and each template into `_site/<folder>/`. Everything uses relative asset paths, and the annotation console uses hash routing because Pages has no SPA fallback. It needs **Settings → Pages → Source: GitHub Actions**.
 

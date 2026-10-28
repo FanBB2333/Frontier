@@ -10,11 +10,14 @@
     <script>
       // Apply the saved theme and language before first paint (mirrors src/lib/theme.ts, i18n.ts).
       ;(function () {
+        // In the gallery the host page's mode stands in for the OS one (see src/lib/system-scheme.ts).
+        var host = parent !== window && new URLSearchParams(location.search).get("scheme")
+        var systemDark = host === "dark" || (host !== "light" && matchMedia("(prefers-color-scheme: dark)").matches)
         var modes = { light: "light", dark: "dark" }
         var id = "light"
         try {
           var saved = localStorage.getItem("frontier-landing:theme")
-          if (saved === "system") id = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+          if (saved === "system") id = systemDark ? "dark" : "light"
           else if (modes[saved]) id = saved
           if (localStorage.getItem("frontier-landing:lang") === "zh") document.documentElement.lang = "zh-CN"
         } catch (e) {}

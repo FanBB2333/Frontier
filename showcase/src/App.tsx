@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type ReactNode } from "react"
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import {
   ExternalLinkIcon,
   InfoIcon,
@@ -22,6 +22,7 @@ import {
 import { cn } from "@/lib/utils"
 import { APP_ID, REPO_URL } from "@/lib/app"
 import { otherLang, setLang, useLang, useT, type Text } from "@/lib/i18n"
+import { SCHEME_MESSAGE, SCHEME_PARAM, type Scheme } from "@/lib/system-scheme"
 import { originOf, useTheme } from "@/hooks/use-theme"
 import { TEMPLATES, type TemplateEntry } from "@/templates"
 import { ResizeHandle } from "@/components/resize-handle"
@@ -318,23 +319,44 @@ function Drawer({
   )
 }
 
+// The gallery's mode is the templates' "system" mode: the frame URL carries the one it starts
+// with, and later changes go in by message so the template keeps its state.
+function frameSrc(path: string, scheme: Scheme) {
+  const url = new URL(path, window.location.href)
+  url.searchParams.set(SCHEME_PARAM, scheme)
+  return url.href
+}
+
 function Stage({
   template,
   viewport,
   reloadKey,
+  scheme,
 }: {
   template: TemplateEntry
   viewport: Viewport
   reloadKey: number
+  scheme: Scheme
 }) {
   const [loaded, setLoaded] = useState(false)
   const width = VIEWPORTS.find((v) => v.id === viewport)?.width
   const key = `${template.id}-${reloadKey}`
-  const [shownKey, setShownKey] = useState(key)
-  if (shownKey !== key) {
-    setShownKey(key)
+  const [frame, setFrame] = useState(() => ({
+    key,
+    src: frameSrc(template.path, scheme),
+  }))
+  if (frame.key !== key) {
+    setFrame({ key, src: frameSrc(template.path, scheme) })
     setLoaded(false)
   }
+  const ref = useRef<HTMLIFrameElement>(null)
+  const sendScheme = useCallback(() => {
+    ref.current?.contentWindow?.postMessage(
+      { type: SCHEME_MESSAGE, scheme },
+      new URL(frame.src).origin
+    )
+  }, [scheme, frame.src])
+  useEffect(() => sendScheme(), [sendScheme])
   return (
     <div
       className={cn(
@@ -350,11 +372,15 @@ function Stage({
         style={{ width: width ?? "100%", maxWidth: "100%" }}
       >
         <iframe
-          key={key}
-          src={template.path}
+          key={frame.key}
+          ref={ref}
+          src={frame.src}
           title={template.id}
           className="size-full border-0"
-          onLoad={() => setLoaded(true)}
+          onLoad={() => {
+            setLoaded(true)
+            sendScheme()
+          }}
           allow="fullscreen; clipboard-write"
         />
         {!loaded && (
@@ -370,6 +396,7 @@ function Stage({
 export default function App() {
   const t = useT()
   const desktop = useIsDesktop()
+  const { resolved } = useTheme()
   const [selected, select] = useSelected()
   const [drawerOpen, setDrawerOpen] = useState(true)
   const [drawerWidth, setDrawerWidth] = useDrawerWidth()
@@ -513,6 +540,7 @@ export default function App() {
             template={selected}
             viewport={desktop ? viewport : "full"}
             reloadKey={reloadKey}
+            scheme={resolved.mode}
           />
         </main>
       </div>

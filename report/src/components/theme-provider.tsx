@@ -2,6 +2,7 @@ import * as React from "react"
 
 import { APP_ID } from "@/lib/app"
 import { readStorage, writeStorage } from "@/lib/storage"
+import { subscribeSystemScheme, systemScheme } from "@/lib/system-scheme"
 
 // Kumo reads the colour mode from data-mode on <html> and the token set from data-theme.
 export type Mode = "light" | "dark" | "system"
@@ -75,7 +76,6 @@ type ThemeState = {
 const MODE_KEY = `${APP_ID}:mode`
 const ACCENT_KEY = `${APP_ID}:accent`
 const STYLE_KEY = `${APP_ID}:style`
-const DARK_QUERY = "(prefers-color-scheme: dark)"
 
 const ThemeContext = React.createContext<ThemeState | undefined>(undefined)
 
@@ -99,8 +99,7 @@ function readStyle(): StylePrefs {
 }
 
 function resolveMode(mode: Mode) {
-  if (mode !== "system") return mode
-  return window.matchMedia(DARK_QUERY).matches ? "dark" : "light"
+  return mode === "system" ? systemScheme() : mode
 }
 
 function isEditableTarget(target: EventTarget | null) {
@@ -159,9 +158,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       )
     apply()
     if (mode !== "system") return
-    const mq = window.matchMedia(DARK_QUERY)
-    mq.addEventListener("change", apply)
-    return () => mq.removeEventListener("change", apply)
+    return subscribeSystemScheme(apply)
   }, [mode])
 
   React.useLayoutEffect(() => {

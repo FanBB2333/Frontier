@@ -13,6 +13,9 @@
     <script>
       // Apply the saved colour mode and accent before first paint (mirrors src/components/theme-provider.tsx).
       ;(function () {
+        // In the gallery the host page's mode stands in for the OS one (see src/lib/system-scheme.ts).
+        var host = parent !== window && new URLSearchParams(location.search).get("scheme")
+        var systemDark = host === "dark" || (host !== "light" && matchMedia("(prefers-color-scheme: dark)").matches)
         var d = document.documentElement
         var mode = "system"
         var accent = "kumo"
@@ -20,7 +23,7 @@
           mode = localStorage.getItem("frontier-report:mode") || mode
           accent = localStorage.getItem("frontier-report:accent") || accent
         } catch (e) {}
-        if (mode !== "light" && mode !== "dark") mode = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+        if (mode !== "light" && mode !== "dark") mode = systemDark ? "dark" : "light"
         d.setAttribute("data-mode", mode)
         d.setAttribute("data-theme", accent)
       })()

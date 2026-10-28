@@ -3,6 +3,7 @@
 // first paint, so keep its storage key and theme ids in sync with this file.
 
 import { APP_ID } from "@/lib/app"
+import { subscribeSystemScheme, systemScheme } from "@/lib/system-scheme"
 
 export type ThemeMode = "light" | "dark"
 export type ThemeDef = {
@@ -11,7 +12,7 @@ export type ThemeDef = {
   swatch?: readonly [string, string, string]
 }
 
-// "system" resolves to the first theme of the OS mode.
+// "system" resolves to the first theme of the system mode (see system-scheme.ts).
 export const THEMES = [
   { id: "morandi", mode: "light", swatch: ["#ebe5de", "#a26a5e", "#5c7890"] },
   { id: "celadon", mode: "light", swatch: ["#ddeae3", "#427b6c", "#9f8056"] },
@@ -27,7 +28,6 @@ export const nextTheme = (id: ThemeId): ThemeId =>
 
 export const DEFAULT_THEME: ThemeChoice = "morandi"
 const STORAGE_KEY = `${APP_ID}:theme`
-const DARK_QUERY = "(prefers-color-scheme: dark)"
 
 const isChoice = (v: unknown): v is ThemeChoice =>
   v === "system" || THEMES.some((t) => t.id === v)
@@ -46,9 +46,8 @@ export function readTheme(): ThemeChoice {
 export function resolveTheme(choice: ThemeChoice): ThemeDef {
   if (choice !== "system")
     return THEMES.find((t) => t.id === choice) ?? THEMES[0]
-  const dark =
-    typeof window !== "undefined" && window.matchMedia(DARK_QUERY).matches
-  return THEMES.find((t) => t.mode === (dark ? "dark" : "light")) ?? THEMES[0]
+  const mode = systemScheme()
+  return THEMES.find((t) => t.mode === mode) ?? THEMES[0]
 }
 
 export function applyTheme(choice: ThemeChoice) {
@@ -71,7 +70,7 @@ export function setTheme(choice: ThemeChoice) {
   listeners.forEach((l) => l())
 }
 
-/** Notifies on local changes, changes from other tabs and OS mode changes (for "system"). */
+/** Notifies on local changes, changes from other tabs and system mode changes (for "system"). */
 export function subscribeTheme(listener: () => void) {
   listeners.add(listener)
   const onStorage = (e: StorageEvent) => {
@@ -79,17 +78,15 @@ export function subscribeTheme(listener: () => void) {
     applyTheme(readTheme())
     listener()
   }
-  const media = window.matchMedia(DARK_QUERY)
-  const onMedia = () => {
+  const unsubscribeSystem = subscribeSystemScheme(() => {
     if (readTheme() !== "system") return
     applyTheme("system")
     listener()
-  }
+  })
   window.addEventListener("storage", onStorage)
-  media.addEventListener("change", onMedia)
   return () => {
     listeners.delete(listener)
     window.removeEventListener("storage", onStorage)
-    media.removeEventListener("change", onMedia)
+    unsubscribeSystem()
   }
 }
