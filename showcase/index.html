@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Frontier · Template gallery</title>
+    <meta name="description" content="Live previews of the Frontier frontend templates, filled with sample data." />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <script>
+      // Apply the saved theme and language before first paint (mirrors src/lib/theme.ts, i18n.ts).
+      ;(function () {
+        var modes = { light: "light", dark: "dark" }
+        var id = "light"
+        try {
+          var saved = localStorage.getItem("frontier-showcase:theme")
+          if (saved === "system") id = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+          else if (modes[saved]) id = saved
+          if (localStorage.getItem("frontier-showcase:lang") === "zh") document.documentElement.lang = "zh-CN"
+        } catch (e) {}
+        var d = document.documentElement
+        d.dataset.theme = id
+        d.style.colorScheme = modes[id]
+        if (modes[id] === "dark") d.classList.add("dark")
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
