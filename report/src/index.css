@@ -1,0 +1,174 @@
+@source "../node_modules/@cloudflare/kumo/dist/**/*.{js,jsx,ts,tsx}";
+@import "@cloudflare/kumo/styles";
+@import "tailwindcss";
+@import "@fontsource-variable/geist";
+
+@theme inline {
+    --font-sans: 'Geist Variable', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
+}
+
+/* Accent themes on top of Kumo's tokens, selected by data-theme on <html>. "kumo" keeps
+   Kumo's own blue. Unlayered so they win over Kumo's light and dark token layers. */
+:root[data-theme="orange"] {
+    --color-kumo-brand: light-dark(#c2410c, #ea580c);
+    --color-kumo-brand-hover: light-dark(#9a3412, #c2410c);
+}
+:root[data-theme="green"] {
+    --color-kumo-brand: light-dark(#15803d, #16a34a);
+    --color-kumo-brand-hover: light-dark(#166534, #15803d);
+}
+:root[data-theme="violet"] {
+    --color-kumo-brand: light-dark(#6d28d9, #7c3aed);
+    --color-kumo-brand-hover: light-dark(#5b21b6, #6d28d9);
+}
+
+:root {
+    --tree-line: light-dark(oklch(0.82 0 0), oklch(1 0 0 / 22%));
+    /* component style; the settings panel overwrites these on <html> */
+    --node-width: 224px;
+    --card-radius: 0.5rem;
+    --tree-gap-x: 0.4rem;
+    --tree-gap-y: 0.75rem;
+    --elbow-top: 0.875rem;
+}
+
+@layer base {
+    html {
+        @apply font-sans;
+    }
+    body {
+        @apply bg-kumo-canvas text-kumo-default;
+    }
+    /* Base UI popups are portalled to <body> without a z-index; isolating the app keeps
+       its own z-indexed parts (input group, zoom bar, walk bar) underneath them */
+    #root {
+        isolation: isolate;
+    }
+}
+
+/* Top-down tree: each <li> draws the connector above its node; nested <ul> draws the stem
+   below its parent. */
+@layer components {
+  .org ul {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    padding-top: 1.5rem;
+  }
+  .org > ul {
+    padding-top: 0;
+  }
+  .org li {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem var(--tree-gap-x) 0;
+    list-style: none;
+  }
+  .org > ul > li {
+    padding-top: 0;
+  }
+  .org li::before,
+  .org li::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 50%;
+    width: 50%;
+    height: 1.5rem;
+    border-top: 1.5px solid var(--tree-line);
+  }
+  .org li::after {
+    right: auto;
+    left: 50%;
+    border-left: 1.5px solid var(--tree-line);
+  }
+  .org li:only-child::before {
+    display: none;
+  }
+  .org li:only-child::after {
+    border-top: 0;
+  }
+  .org > ul > li::before,
+  .org > ul > li::after {
+    display: none;
+  }
+  .org li:first-child::before,
+  .org li:last-child::after {
+    border: 0 none;
+  }
+  .org li:last-child:not(:only-child)::before {
+    border-right: 1.5px solid var(--tree-line);
+    border-top-right-radius: 10px;
+  }
+  .org li:first-child::after {
+    border-top-left-radius: 10px;
+  }
+  /* a single child keeps only the vertical stem */
+  .org li:only-child::after {
+    border-left: 1.5px solid var(--tree-line);
+    border-radius: 0;
+  }
+  .org ul ul::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    height: 1.5rem;
+    border-left: 1.5px solid var(--tree-line);
+  }
+  /* below the first level, children hang down from a spine on the left of their parent */
+  .vtree {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tree-gap-y);
+    margin-left: 0.5rem;
+    padding-top: 1.25rem;
+    padding-left: 0.875rem;
+  }
+  .vnode {
+    position: relative;
+  }
+  .vnode::before {
+    content: "";
+    position: absolute;
+    top: -1.25rem;
+    bottom: 0;
+    left: -0.875rem;
+    border-left: 1.5px solid var(--tree-line);
+  }
+  .vnode + .vnode::before {
+    top: calc(-1 * var(--tree-gap-y));
+  }
+  /* the spine of the last child ends at its elbow */
+  .vnode:last-child::before {
+    bottom: auto;
+    height: calc(1.25rem + var(--elbow-top));
+  }
+  .vnode + .vnode:last-child::before {
+    height: calc(var(--tree-gap-y) + var(--elbow-top));
+  }
+  .vnode::after {
+    content: "";
+    position: absolute;
+    top: var(--elbow-top);
+    left: -0.875rem;
+    width: 0.8rem;
+    border-top: 1.5px solid var(--tree-line);
+  }
+  .vnode.on-path::after {
+    border-top-color: var(--color-kumo-brand);
+  }
+  /* connectors on the path from the root to the selected node */
+  .org li.on-path:not(:last-child)::after,
+  .org li.on-path:only-child::after {
+    border-left-color: var(--color-kumo-brand);
+  }
+  .org li.on-path:last-child:not(:only-child)::before {
+    border-right-color: var(--color-kumo-brand);
+  }
+  .org ul:has(> li.on-path)::before {
+    border-left-color: var(--color-kumo-brand);
+  }
+}
