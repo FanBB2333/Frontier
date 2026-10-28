@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">
+  <rect width="1600" height="1000" fill="#f4f1ec"/>
+  <g fill="none" stroke="#2f2a26" stroke-opacity=".06">
+    <path d="M0 100H1600M0 200H1600M0 300H1600M0 400H1600M0 500H1600M0 600H1600M0 700H1600M0 800H1600M0 900H1600"/>
+    <path d="M100 0V1000M200 0V1000M300 0V1000M400 0V1000M500 0V1000M600 0V1000M700 0V1000M800 0V1000M900 0V1000M1000 0V1000M1100 0V1000M1200 0V1000M1300 0V1000M1400 0V1000M1500 0V1000"/>
+  </g>
+  <!-- browser window -->
+  <rect x="90" y="80" width="1420" height="840" rx="26" fill="#fbfaf7" stroke="#2f2a26" stroke-opacity=".14" stroke-width="2"/>
+  <path d="M90 140H1510" stroke="#2f2a26" stroke-opacity=".1" stroke-width="2"/>
+  <circle cx="132" cy="110" r="9" fill="#d9a296"/><circle cx="162" cy="110" r="9" fill="#d8c49a"/><circle cx="192" cy="110" r="9" fill="#a9c2a4"/>
+  <rect x="560" y="98" width="480" height="24" rx="12" fill="#2f2a26" fill-opacity=".06"/>
+  <!-- letterbox canvas -->
+  <rect x="122" y="172" width="1356" height="716" rx="8" fill="#e9e3da"/>
+  <rect x="160" y="192" width="1280" height="676" fill="#f7f3ed" stroke="#a26a5e" stroke-width="3" stroke-dasharray="14 10"/>
+  <text x="1420" y="236" text-anchor="end" font-size="30" fill="#a26a5e">1920 × 1080</text>
+  <!-- page content -->
+  <rect x="230" y="270" width="140" height="18" rx="9" fill="#a26a5e" fill-opacity=".8"/>
+  <rect x="230" y="310" width="520" height="44" rx="10" fill="#2f2a26" fill-opacity=".82"/>
+  <g fill="#2f2a26" fill-opacity=".28">
+    <rect x="262" y="410" width="420" height="20" rx="10"/><rect x="262" y="446" width="340" height="20" rx="10"/>
+    <rect x="262" y="520" width="440" height="20" rx="10"/><rect x="262" y="556" width="300" height="20" rx="10"/>
+    <rect x="262" y="630" width="400" height="20" rx="10"/>
+  </g>
+  <g fill="#a26a5e"><rect x="234" y="413" width="14" height="14" rx="3" transform="rotate(45 241 420)"/><rect x="234" y="523" width="14" height="14" rx="3" transform="rotate(45 241 530)"/><rect x="234" y="633" width="14" height="14" rx="3" transform="rotate(45 241 640)"/></g>
+  <rect x="800" y="300" width="560" height="380" rx="20" fill="#fff" stroke="#2f2a26" stroke-opacity=".1" stroke-width="2"/>
+  <path d="M840 620l110-130 80 90 60-60 150 100" fill="none" stroke="#5c7890" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="1230" cy="380" r="34" fill="#d8c49a"/>
+  <rect x="784" y="284" width="592" height="412" rx="30" fill="none" stroke="#a26a5e" stroke-width="4"/>
+  <!-- footer -->
+  <rect x="230" y="810" width="360" height="14" rx="7" fill="#2f2a26" fill-opacity=".18"/>
+  <text x="1370" y="824" text-anchor="end" font-size="24" fill="#2f2a26" fill-opacity=".5">02 / 10</text>
+  <rect x="160" y="862" width="1280" height="6" fill="#2f2a26" fill-opacity=".08"/>
+  <rect x="160" y="862" width="256" height="6" fill="#a26a5e"/>
+  <!-- scale arrows -->
+  <g stroke="#5c7890" stroke-width="3" fill="none" stroke-linecap="round">
+    <path d="M60 192V868M48 204l12-12 12 12M48 856l12 12 12-12"/>
+    <path d="M160 950H1440M172 938l-12 12 12 12M1428 938l12 12-12 12"/>
+  </g>
+  <text x="800" y="988" text-anchor="middle" font-size="26" fill="#5c7890">scale = min(window / canvas)</text>
+</svg>
